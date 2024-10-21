@@ -1,0 +1,43 @@
+name: Run Tests
+
+# Trigger this workflow on every push or pull request to the main branch
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+# Define the jobs to run in this workflow
+jobs:
+  test:
+    runs-on: ubuntu-latest  # Use the latest Ubuntu runner
+
+    steps:
+      # Step 1: Checkout the code from the repository
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # Step 2: Set up Node.js (use version 21.7.0)
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '21.7.0'  # Use Node.js version 21.7.0
+
+      # Step 3: Install dependencies (uses npm ci if a package-lock.json file is present)
+      - name: Install dependencies
+        run: npm ci
+
+
+      # Step 4: Run tests using Vitest
+      - name: Run tests
+        run: npm run test -- --coverage  # Add --coverage to collect test coverage if needed
+
+      # Step 5: Upload test results (optional, for test result reporting)
+      - name: Upload test results
+        if: always()  # Ensure results are uploaded even if the tests fail
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-results
+          path: ./coverage  # Customize the path to your test results or coverage report
